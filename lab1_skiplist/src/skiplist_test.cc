@@ -145,6 +145,9 @@ void Zipfian_Delete(const int write, const int read, SkipList<Key>& sl) {
     // Calculate insertion time
     float w_time = std::chrono::duration_cast<std::chrono::nanoseconds>(w_end - w_start).count() * 0.001;
 
+    // Insert Print
+    // sl.Print();
+
     // Delete for keys following Zipfian distribution
     auto r_start = Clock::now();
     for (int i = 1; i <= read; ++i) {
@@ -176,6 +179,9 @@ void Uniform_Delete(const int write, const int read, SkipList<Key>& sl) {
 
     // Calculate insertion time
     float w_time = std::chrono::duration_cast<std::chrono::nanoseconds>(w_end - w_start).count() * 0.001;
+
+    // Insert Print
+    // sl.Print();
 
     // Delete for random keys
     auto r_start = Clock::now();
@@ -262,6 +268,9 @@ int main(int argc, char *argv[]) {
             printUsage(argv[0]);
             return 1;
     }
+
+    // Print
+    // sl.Print();
 
     return 0;
 }
