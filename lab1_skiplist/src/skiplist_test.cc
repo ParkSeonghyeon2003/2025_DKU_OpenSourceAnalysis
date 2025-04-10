@@ -44,6 +44,13 @@ void Zipfian(const int write, const int read, SkipList<Key>& sl) {
 
     // Display results
     printf("\n[Zipfian] Insertion = %.2lf µs, Lookup = %.2lf µs\n", w_time, r_time);
+    
+    // 파일에 저장
+    std::ofstream outFile("output.csv", std::ios::app); // append 모드
+    if (outFile.is_open()) {
+        outFile << write << "," << read << ",Zipfian," << w_time << "," << r_time << "\n";
+        outFile.close();
+    }
 }
 
 void Uniform(const int write, const int read, SkipList<Key>& sl) {
@@ -75,6 +82,13 @@ void Uniform(const int write, const int read, SkipList<Key>& sl) {
 
     // Display results
     printf("\n[Uniform] Insertion = %.2lf µs, Lookup = %.2lf µs\n", w_time, r_time);
+    
+    // 파일에 저장
+    std::ofstream outFile("output.csv", std::ios::app); // append 모드
+    if (outFile.is_open()) {
+        outFile << write << "," << read << ",Uniform," << w_time << "," << r_time << "\n";
+        outFile.close();
+    }
 }
 
 void RevSequential(const int write, const int read, SkipList<Key>& sl) {
@@ -101,6 +115,13 @@ void RevSequential(const int write, const int read, SkipList<Key>& sl) {
 
     // Display results
     printf("\n[Rev-Sequential] Insertion = %.2lf µs, Lookup = %.2lf µs\n", w_time, r_time);
+    
+    // 파일에 저장
+    std::ofstream outFile("output.csv", std::ios::app); // append 모드
+    if (outFile.is_open()) {
+        outFile << write << "," << read << ",RevSequential," << w_time << "," << r_time << "\n";
+        outFile.close();
+    }
 }
 
 void Sequential(const int write, const int read, SkipList<Key>& sl) {
@@ -127,6 +148,13 @@ void Sequential(const int write, const int read, SkipList<Key>& sl) {
 
     // Display results
     printf("\n[Sequential] Insertion = %.2lf µs, Lookup = %.2lf µs\n", w_time, r_time);
+    
+    // 파일에 저장
+    std::ofstream outFile("output.csv", std::ios::app); // append 모드
+    if (outFile.is_open()) {
+        outFile << write << "," << read << ",Sequential," << w_time << "," << r_time << "\n";
+        outFile.close();
+    }
 }
 
 void Zipfian_Delete(const int write, const int read, SkipList<Key>& sl) {
@@ -161,6 +189,13 @@ void Zipfian_Delete(const int write, const int read, SkipList<Key>& sl) {
 
     // Display results
     printf("\n[Zipfian Delete] Insertion = %.2lf µs, Deletion = %.2lf µs\n", w_time, r_time);
+    
+    // 파일에 저장
+    std::ofstream outFile("output.csv", std::ios::app); // append 모드
+    if (outFile.is_open()) {
+        outFile << write << "," << read << ",ZipfianDelete," << w_time << "," << r_time << "\n";
+        outFile.close();
+    }
 }
 
 void Uniform_Delete(const int write, const int read, SkipList<Key>& sl) {
@@ -195,6 +230,13 @@ void Uniform_Delete(const int write, const int read, SkipList<Key>& sl) {
 
     // Display results
     printf("\n[Uniform Delete] Insertion = %.2lf µs, Deletion = %.2lf µs\n", w_time, r_time);
+    
+    // 파일에 저장
+    std::ofstream outFile("output.csv", std::ios::app); // append 모드
+    if (outFile.is_open()) {
+        outFile << write << "," << read << ",UniformDelete," << w_time << "," << r_time << "\n";
+        outFile.close();
+    }
 }
 
 void Uniform_Scan(const int write, const int read, SkipList<Key> &sl) {
@@ -221,10 +263,17 @@ void Uniform_Scan(const int write, const int read, SkipList<Key> &sl) {
     r_time = std::chrono::duration_cast<std::chrono::nanoseconds>(r_end - r_start).count() * 0.001;
     w_time = std::chrono::duration_cast<std::chrono::nanoseconds>(w_end - w_start).count() * 0.001;
     printf("\n[Uniform-Scan] Insertion = %.2lf µs, Lookup = %.2lf µs\n", w_time, r_time);
+    
+    // 파일에 저장
+    std::ofstream outFile("output.csv", std::ios::app); // append 모드
+    if (outFile.is_open()) {
+        outFile << write << "," << read << ",UniformScan," << w_time << "," << r_time << "\n";
+        outFile.close();
+    }
 }
 
 void printUsage(const char* programName) {
-    std::cerr << "\nUsage: " << programName << " [Write Count] [Read Count] [Benchmark #]\n\n"
+    std::cerr << "\nUsage: " << programName << " [Write Count] [Read Count] [Benchmark #] [Max Level] [Probability]\n\n"
               << "Benchmark can be selected by number or name.\n\n"
               << "Synthetic Benchmarks:\n"
               << " 0 - Sequential\n"
@@ -242,9 +291,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    const int W = std::atoi(argv[1]);  // Insertion count
-    const int R = std::atoi(argv[2]);  // Lookup count
-    const int B = std::atoi(argv[3]);  // Benchmark type
+    const int W = std::atoi(argv[1]);               // Insertion count
+    const int R = std::atoi(argv[2]);               // Lookup count
+    const int B = std::atoi(argv[3]);               // Benchmark type
 
     SkipList<Key> sl;
 
