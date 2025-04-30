@@ -125,7 +125,39 @@ Bplustree<Key>::Bplustree(int degree) : degree(degree) {
 template<typename Key>
 void Bplustree<Key>::Insert(const Key& key) {
     // TODO: Implement insertion logic here.
-    // To be implemented by students
+    LeafNode* leaf = FindLeadf(key);
+
+    auto it = std::lower_bound(leaf->keys.begin(), leaf->keys.end(), key);
+    if (it != leaf->keys.end() && *it == key) return; // 중복 방지
+    
+    leaf->keys.insert(it, key);
+
+    if (leaf->keys.size() < degree) return; // 분할 불필요
+
+    // 분할 필요
+    LeafNode* new_leaf = new LeafNode();
+    int mid = leaf->keys.size() / 2;
+
+    new_leaf->keys.assign(leaf->keys.begin() + mid, leaf->keys.end());
+    leaf->keys.resize(mid);
+
+    new_leaf->next = leaf->next;
+    leaf->next = new_leaf;
+
+    Key new_key = new_leaf->keys.front(); // 부모로 올릴 key
+
+    if (leaf == root) {
+        // 루트 분할
+        InternalNode* new_root = new InternalNode();
+        new_root->keys.push_back(new_key);
+        new_root->children.push_back(leaf);
+        new_root->children.push_back(new_leaf);
+        root = new_root;
+    } else {
+        // 루트 외 삽입
+        Node* new_child = new_leaf;
+        InsertInternal(root, new_key, new_child, new_key);
+    }
 }
 
 
@@ -133,8 +165,8 @@ void Bplustree<Key>::Insert(const Key& key) {
 template<typename Key>
 bool Bplustree<Key>::Contains(const Key& key) const {
     // TODO: Implement lookup logic here.
-    // To be implemented by students
-    return false;
+    LeafNode* leaf = FindLeaf(key);
+    return std::binary_search(leaf->keys.begin(), leaf->keys.end(), key);
 }
 
 
@@ -142,8 +174,16 @@ bool Bplustree<Key>::Contains(const Key& key) const {
 template<typename Key>
 std::vector<Key> Bplustree<Key>::Scan(const Key& key, const int scan_num) {
     // TODO: Implement range query logic here.
-    // To be implemented by students
-    return {};
+    std::vector<Key> result;
+    LeafNode* leaf = FindLeaf(key);
+    while (leaf && result.size() < scan_num) {
+        for (const Key& k : leaf->keys) {
+            if (k >= key) result.push_back(k);
+            if (result.size() == scan_num) break;
+        }
+        leaf = leaf->next;
+    }
+    return result;
 }
 
 
@@ -160,7 +200,52 @@ bool Bplustree<Key>::Delete(const Key& key) {
 template<typename Key>
 void Bplustree<Key>::InsertInternal(Node* current, const Key& key, Node*& new_child, Key& new_key) {
     // TODO: Implement internal node insertion logic here.
-    // To be implemented by students
+    if (current->is_leaf) return; // 잘못된 호출 방지
+
+    InternalNode* internal = current->as_internal();
+    size_t i = 0;
+    while (i < internal->keys.size() && key >= internal->keys[i]) ++i;
+
+    Node* child = internal->children[i];
+
+    if (child->is_leaf) {
+        // 이미 처리한 경우
+        internal->keys.insert(internal->keys.begin() + i, new_key);
+        internal->children.insert(internal->children.begin() + i + 1, new_child);
+    } else {
+        Node* new_grandchild = nullptr;
+        Key promoted_key;
+        InsertInternal(chidl, key, new_grandchild, promoted_key);
+        if (new_grandchild != nullptr) {
+            internal->keys.insert(internal->keys.begin() + 1, promoted_key);
+            internal->children.insert(internal->children.begin() + i + 1, new_grandchild);
+        }
+    }
+
+    if (internal->keys.size() >= degree) {
+        InternalNode* new_internal = nre InternalNode();
+        int mid = internal->keys.size() / 2;
+
+        new_key = internal->keys[mid];
+        new_internal->keys.assign(internal->keys.begin() + mid + 1, internal->keys.end());
+        new_internal->children.assign(internal->children.begin() + mid + 1, internal->children.end());
+
+        internal->keys.resize(mid);
+        internal->children.resize(mid + 1);
+
+        new_child = new_internal;
+
+        if (current == root) {
+            InternalNode* new_root = new InternalNode();
+            new_root->keys.push_back(new_key);
+            new_root->children.push_back(internal);
+            new_root->children.push_back(new_child);
+            root = new_root;
+            new_child = nullptr;
+        }
+    } else {
+        new_child = nullptr;
+    }
 }
 
 
@@ -177,8 +262,16 @@ bool Bplustree<Key>::DeleteInternal(Node* current, const Key& key) {
 template<typename Key>
 typename Bplustree<Key>::LeafNode* Bplustree<Key>::FindLeaf(const Key& key) const {
     // TODO: Implement the traversal logic to locate the correct leaf node.
-    // To be implemented by students
-    return nullptr;
+    Node* current = root;
+    while (!current->is_leaf) {
+        InternalNode* internal = current->as_internal();
+        size_t i = 0;
+        while (i < internal->keys.size() && key >= internal->keys[i]) {
+            ++i;
+        }
+        current = internal->children[i];
+    }
+    return current->as_leaf();
 }
 
 // Print function: Public interface to print the B+ Tree structure.
